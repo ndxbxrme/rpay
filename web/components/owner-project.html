@@ -1,0 +1,6 @@
+<project>
+  <h3>{{this.name}}</h3>
+  <owed>{{this.accounting.owed}} {{this.tokenDetails.symbol}} owed</owed>
+  <withdrawable>{{this.accounting.withdrawableOwner}} {{this.tokenDetails.symbol}} withdrawable</withdrawable>
+  <input type="button" onclick="app.state.withdrawOwner()" value="Withdraw" />
+</project>

@@ -1,0 +1,9 @@
+<project>
+  <h3>{{this.name}}</h3>
+  <owed>{{this.accounting.owed}} {{this.tokenDetails.symbol}} owed</owed>
+  <deposited>{{+this.deposited - +this.withdrawnClient}} {{this.tokenDetails.symbol}} deposited</deposited>
+  <withdrawable>{{this.accounting.withdrawableClient}} {{this.tokenDetails.symbol}} withdrawable</withdrawable>
+  <input type="button" onclick="app.state.deposit()" value="Deposit" class="{{+this.tokenDetails.allowance?'':'hidden'}}" />
+  <input type="button" onclick="app.state.approve()" value="Approve {{this.tokenDetails.symbol}}" class="{{+this.tokenDetails.allowance?'hidden':''}}" />
+  <input type="button" onclick="app.state.withdrawClient()" value="Withdraw" />
+</project>

@@ -1,0 +1,89 @@
+import {TurboMini} from './libs/turbomini.js';
+import * as ethers from './libs/ethers.esm.min.js';
+const RAINaddress = '0xE21F322b7db098F51f82E715Ec7c6D8A60f2CC10';
+const TestContractAddress = '0xb7383725Bc6c3a1fc25FbE30aF02971FAA1BFAdb';
+const MasterchefAddress = '0x73fF0F781A0D102eFfa1a0b51A8D56d347De4FC0';
+window.app = TurboMini();
+(await app.run(async app => {
+  await Promise.all(['default'].map(async name => app.template(name, await(await fetch('./components/' + name + '.html')).text())));
+  const abis = {};
+  await Promise.all(['RAIN', 'TestContract', 'MyContract', 'RPayMasterchef'].map(async name => {
+    const abi = await(await fetch('./abi/' + name + '.json')).json();
+    abis[name] = abi.abi || abi;
+  }));
+  console.log('abis', abis);
+  let provider = null;
+  let signer = null;
+  provider = new ethers.providers.Web3Provider(ethereum);
+  signer = provider.getSigner();
+  app.mint = async () => {
+    const contract = new ethers.Contract(RAINaddress, abis.RAIN, signer);
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const amount = ethers.utils.parseUnits("1000.0", 18);
+    contract.mint(accounts[0], amount);
+  };
+  app.addController = async () => {
+    const contract = new ethers.Contract(RAINaddress, abis.RAIN, signer);
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    await contract.addController(accounts[0]);
+  }
+  app.addRain = async () => {
+    const wasAdded = await ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: RAINaddress,
+          symbol: 'RAIN',
+          decimals: 18
+        }
+      }
+    })
+  }
+  app.getBalance = async () => {
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const contract = new ethers.Contract(TestContractAddress, abis.TestContract, provider);
+    console.log(ethers.utils.formatEther(await contract.test(accounts[0])));
+  }
+  app.addProxy = async () => {
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const contract = new ethers.Contract(TestContractAddress, abis.TestContract, signer);
+    console.log(await contract.addProxy('0x3A21771eb8d2C7908847B589DAf99922ee2c3c00',true,false));
+  }
+  app.removeProxy = async () => {
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const contract = new ethers.Contract(TestContractAddress, abis.TestContract, signer);
+    console.log(await contract.removeProxy('0x3A21771eb8d2C7908847B589DAf99922ee2c3c00'));
+  }
+  app.getProxy = async () => {
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const contract = new ethers.Contract(TestContractAddress, abis.TestContract, provider);
+    console.log(await contract.getProxy('0x3A21771eb8d2C7908847B589DAf99922ee2c3c00'));
+  }
+  app.getAllowance = async () => {
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const contract = new ethers.Contract(RAINaddress, abis.RAIN, provider);
+    const allowance = ethers.utils.formatEther(await contract.allowance(accounts[0], TestContractAddress));
+    console.log(allowance);
+  }
+  app.approveToken = async (tokenAddress) => {
+    const amt = '115792089237316195423570985008687907853269984665640564039339051095349628340968';
+    const contract = new ethers.Contract(RAINaddress, abis.RAIN, signer);
+    await contract.approve(TestContractAddress, amt);
+    contract.once('Approval', (data) => {
+      console.log('approved', data);
+    })
+  }
+  app.createContract = async () => {
+    const contract = new ethers.Contract(MasterchefAddress, abis.RPayMasterchef, signer);
+    await contract.newRPay();
+    contract.once('RPayCreated', (data, owner) => {
+      console.log('rpay created', data, owner);
+    })
+  }
+  app.getContracts = async () => {
+    const contract = new ethers.Contract(MasterchefAddress, abis.RPayMasterchef, provider);
+    console.log(await contract.getContracts());
+  }
+  app.getAllowance()
+})).start();

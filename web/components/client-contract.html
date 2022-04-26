@@ -1,0 +1,7 @@
+<contract>
+  <h2>{{contract.name}}</h2>
+  <h3>{{contract.address}}</h3>
+  <input type="button" onclick="app.state.newProject('{{contract.address}}')" value="Add project" />
+  <h2>Projects</h2>
+  {{contract.projects.map(project => app.$t('client-project', project)).join('')}}
+</contract>
