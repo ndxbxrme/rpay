@@ -1,6 +1,23 @@
 <project>
-  <h3>{{this.name}}</h3>
-  <owed>{{this.accounting.owed}} {{this.tokenDetails.symbol}} owed</owed>
-  <withdrawable>{{this.accounting.withdrawableOwner}} {{this.tokenDetails.symbol}} withdrawable</withdrawable>
-  <input type="button" onclick="app.state.withdrawOwner()" value="Withdraw" />
+  <project-header>
+    <h3>{{this.name}}</h3>
+  </project-header>
+  <project-details>
+    <value-date>
+      <label>&nbsp;</label>
+      <value>{{this.accounting.valueText}}</value>
+      <startDate>{{app.Date(this.startDate * 1000)}}</startDate>
+    </value-date>
+    <owed>
+      <label>Owed</label>
+      <amount>{{this.accounting.owed}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </owed>
+    <withdrawable>
+      <label>Withdrawable</label>
+      <amount>{{this.accounting.withdrawableOwner}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </withdrawable>
+  </project-details>
+  <controls>
+    <input type="button" onclick="app.state.withdrawOwner(this, '{{this.contractAddress}}', '{{this.projectID}}', {{this.tokenDetails.decimals}}, {{this.accounting.num}})" value="Withdraw" {{+this.accounting.withdrawableOwner?'':'disabled=""'}} />
+  </controls>
 </project>

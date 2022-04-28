@@ -5,7 +5,9 @@ import "./ERC20.sol";
 contract RPay is Context {
 
   struct ProjectStruct {
+    uint projectID;
     string name;
+    string clientName;
     string meta;
     uint startDate;
     uint dueDate;
@@ -23,6 +25,7 @@ contract RPay is Context {
   }
   
   struct MilestoneStruct {
+    uint milestoneID;
     uint projectID;
     string name;
     string meta;
@@ -76,13 +79,15 @@ contract RPay is Context {
     return num * projects[projectID].value;
   }
   
-  function createProject(string calldata name, string calldata meta, uint startDate, uint dueDate, address client, address token, uint value, uint frequency) public returns (uint projectID) {
+  function createProject(string memory name, string memory meta, string memory clientName, uint startDate, uint dueDate, address client, address token, uint value, uint frequency) public returns (uint projectID) {
     (address toAddress, bool canDeposit, bool canWithdraw) = getProxy(_msgSender());
     require(toAddress == _owner, "Only owner can create a project");
     //only owner or proxy of owner
     projectID = numProjects++;
     ProjectStruct storage p = projects[projectID];
+    p.projectID = projectID;
     p.name = name;
+    p.clientName = clientName;
     p.meta = meta;
     p.startDate = startDate;
     p.dueDate = dueDate;
@@ -99,6 +104,8 @@ contract RPay is Context {
     require(toAddress == _owner, "Only owner can create a milestone");
     milestoneID = numMilestones++;
     MilestoneStruct storage m = milestones[milestoneID];
+    m.milestoneID = milestoneID;
+    m.projectID = projectID;
     m.name = name;
     m.meta = meta;
     m.startDate = startDate;
@@ -140,6 +147,10 @@ contract RPay is Context {
     require(value <= totalAvailable, "Not enough funds");
     uint contractBalance = ERC20(projects[projectID].token).balanceOf(address(this));
     require(value <= contractBalance, "Not enough funds");
+    uint allowance = ERC20(projects[projectID].token).allowance(address(this), address(this));
+    if(allowance==0) {
+      ERC20(projects[projectID].token).approve(address(this), 115792089237316195423570985008687907853269984665640564039339051095349628340968);
+    }
     bool success = ERC20(projects[projectID].token).transferFrom(address(this), _msgSender(), value);
     if(success) {
       emit WithdrawOwner(projectID, _msgSender(), value);
@@ -162,6 +173,10 @@ contract RPay is Context {
     //TODO do transfer
     uint contractBalance = ERC20(projects[projectID].token).balanceOf(address(this));
     require(value <= contractBalance, "Not enough funds");
+    uint allowance = ERC20(projects[projectID].token).allowance(address(this), address(this));
+    if(allowance==0) {
+      ERC20(projects[projectID].token).approve(address(this), 115792089237316195423570985008687907853269984665640564039339051095349628340968);
+    }
     bool success = ERC20(projects[projectID].token).transferFrom(address(this), _msgSender(), value);
     if(success) {
       emit WithdrawClient(projectID, _msgSender(), value);
@@ -174,7 +189,7 @@ contract RPay is Context {
   
   function getProjects() public view returns (ProjectStruct[] memory) {
     ProjectStruct[] memory ps = new ProjectStruct[](numProjects);
-    for(uint8 i = 0; i < numProjects; i++) {
+    for(uint i = 0; i < numProjects; i++) {
       ps[i] = projects[i];
     }
     return ps;
@@ -182,7 +197,7 @@ contract RPay is Context {
   
   function getMilestones() public view returns (MilestoneStruct[] memory) {
     MilestoneStruct[] memory ms = new MilestoneStruct[](numMilestones);
-    for(uint8 i = 0; i < numMilestones; i++) {
+    for(uint i = 0; i < numMilestones; i++) {
       ms[i] = milestones[i];
     }
     return ms;
@@ -239,7 +254,7 @@ contract RPay is Context {
     if(toAddress==_owner) {
       return (1, toAddress);
     }
-    for(uint8 i=0; i<numProjects; i++) {
+    for(uint i=0; i<numProjects; i++) {
       if(toAddress==projects[i].client) {
         return (2, toAddress);
       }

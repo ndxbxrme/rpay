@@ -1,9 +1,28 @@
-<project>
-  <h3>{{this.name}}</h3>
-  <owed>{{this.accounting.owed}} {{this.tokenDetails.symbol}} owed</owed>
-  <deposited>{{+this.deposited - +this.withdrawnClient}} {{this.tokenDetails.symbol}} deposited</deposited>
-  <withdrawable>{{this.accounting.withdrawableClient}} {{this.tokenDetails.symbol}} withdrawable</withdrawable>
-  <input type="button" onclick="app.state.deposit()" value="Deposit" class="{{+this.tokenDetails.allowance?'':'hidden'}}" />
-  <input type="button" onclick="app.state.approve()" value="Approve {{this.tokenDetails.symbol}}" class="{{+this.tokenDetails.allowance?'hidden':''}}" />
-  <input type="button" onclick="app.state.withdrawClient()" value="Withdraw" />
+<project class="client">
+  <project-header>
+    <h3>{{this.name}}</h3>
+  </project-header>
+  <project-details>
+    <value-date>
+      <label>&nbsp;</label>
+      <value>{{this.accounting.valueText}}</value>
+    </value-date>
+    <owed>
+      <label>Owed</label>
+      <amount>{{this.accounting.owed}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </owed>
+    <deposited>
+      <label>deposited</label>
+      <amount>{{+this.deposited - +this.withdrawnClient}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </deposited>
+    <withdrawable>
+      <label>withdrawable</label>
+      <amount>{{this.accounting.withdrawableClient}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </withdrawable>
+  </project-details>
+  <controls>
+    <input type="button" onclick="app.state.deposit(this, '{{this.contractAddress}}', '{{this.projectID}}', {{this.tokenDetails.decimals}})" value="Deposit" class="{{+this.tokenDetails.allowance?'':'hidden'}}" />
+    <input type="button" onclick="app.state.approve(this, '{{this.contractAddress}}', '{{this.token}}')" value="Approve {{this.tokenDetails.symbol}}" class="{{+this.tokenDetails.allowance?'hidden':''}}" />
+    <input type="button" onclick="app.state.withdrawClient(this, '{{this.contractAddress}}', '{{this.projectID}}', {{this.tokenDetails.decimals}})" value="Withdraw" {{+this.accounting.withdrawableClient?'':'disabled=""'}} />
+  </controls>
 </project>

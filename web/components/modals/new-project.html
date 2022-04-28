@@ -1,19 +1,42 @@
 <form onsubmit="app.state.submitNewProject(); return false">
-  <label>name</label>
-  <input type="text" name="name" />
-  <label>meta</label>
-  <input type="text" name="meta" />
-  <label>startDate</label>
-  <input type="date" name="startDate" />
-  <label>dueDate</label>
-  <input type="date" name="dueDate" />
-  <label>client</label>
-  <input type="text" name="client" />
-  <label>token</label>
-  <input type="text" name="token" />
-  <label>value</label>
-  <input type="text" name="value" />
-  <label>frequency</label>
-  <input type="number" name="frequency" />
-  <input type="submit" value="Create" />
+  <modal-header>
+    <heading>New contract</heading>
+    <input type="button" onclick="app.state.closeModal()" value="X" />
+  </modal-header>
+  <wizard-page name="0">
+    <label>name</label>
+    <input type="text" name="name" required />
+    <label>client address</label>
+    <input type="text" name="client" required valid-address />
+    <label>client name</label>
+    <input type="text" name="clientName" required />
+    <wizard-controls>
+      <input type="button" onclick="app.state.next()" value="Next" />
+    </wizard-controls>
+  </wizard-page>
+  <wizard-page name="1">
+    <label>startDate</label>
+    <input type="date" name="startDate" required />
+    <label>dueDate</label>
+    <input type="date" name="dueDate" />
+    <wizard-controls>
+      <input type="button" onclick="app.state.prev()" value="Prev" />
+      <input type="button" onclick="app.state.next()" value="Next" />
+    </wizard-controls>
+  </wizard-page>
+  <wizard-page name="2">
+    <label>token address</label>
+    <input type="text" name="token" required valid-address onchange="app.state.updateToken(this)" />
+    <label>value</label>
+    <input type="text" name="value" required number />
+    <label>frequency</label>
+    <input type="number" name="frequency" required />
+    <wizard-controls>
+      <input type="button" onclick="app.state.prev()" value="Prev" />
+      <input type="submit" value="Create" />
+    </wizard-controls>
+  </wizard-page>
+  <wizard-page name="3">
+    <h1>Generating contract</h1>
+  </wizard-page>
 </form>

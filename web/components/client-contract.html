@@ -1,7 +1,13 @@
 <contract>
-  <h2>{{contract.name}}</h2>
-  <h3>{{contract.address}}</h3>
-  <input type="button" onclick="app.state.newProject('{{contract.address}}')" value="Add project" />
-  <h2>Projects</h2>
+  <contract-header>
+    <contract-name>{{contract.name}}</contract-name>
+    <contract-address>{{contract.address}}</contract-address>
+  </contract-header>
+  <projects-header>
+    <h2>Projects</h2>
+    <projects-controls>
+      <input type="button" onclick="app.state.newProject('{{contract.address}}')" value="Add project" />
+    </projects-controls>
+  </projects-header>
   {{contract.projects.map(project => app.$t('client-project', project)).join('')}}
 </contract>

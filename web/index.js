@@ -1,11 +1,13 @@
 import {TurboMini} from './libs/turbomini.js';
+import {Formatters} from './components/formatters.js';
 import * as ethers from './libs/ethers.esm.min.js';
 import {config} from './components/config.js';
 import {defaultCtrl} from './components/default.js';
 window.app = TurboMini();
 (await app.run(async app => {
-  await Promise.all(['default', 'no-metamask', 'connect-wallet', 'switch-chain', 'modals/new-contract', 'modals/new-project', 'owner-contracts', 'client-contracts', 'owner-contract', 'client-contract', 'owner-project', 'client-project'].map(async name => app.template(name, await(await fetch('./components/' + name + '.html')).text())));
-  await Promise.all(['RAIN', 'TestContract', 'MyContract', 'RPayMasterchef', 'RPay', 'ERC20'].map(async name => {
+  Formatters(app);
+  await Promise.all(['default', 'no-metamask', 'connect-wallet', 'switch-chain', 'modals/new-contract', 'modals/new-project', 'modals/deposit', 'modals/withdraw-owner', 'modals/withdraw-client', 'owner-contracts', 'client-contracts', 'owner-contract', 'client-contract', 'owner-project', 'client-project'].map(async name => app.template(name, await(await fetch('./components/' + name + '.html')).text())));
+  await Promise.all(['RAIN', 'RPayMasterchef', 'RPay', 'ERC20'].map(async name => {
     const abi = await(await fetch('./abi/' + name + '.json')).json();
     config.abis[name] = abi.abi || abi;
   }));
