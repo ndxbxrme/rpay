@@ -1,4 +1,23 @@
 <form onsubmit="app.state.submitWithdrawClient(); return false">
-  <input type="number" name="value" />
-  <input type="submit" value="Create" />
+  <modal-header>
+    <div></div>
+    <input type="button" onclick="app.state.closeModal()" value="X" />
+  </modal-header>
+  <wizard-page>
+    <wizard-heading>
+      <h1>Withdraw</h1>
+    </wizard-heading>
+    <label>Amount to withdraw</label>
+    <input-holder>
+      <input-header>
+        <amount-withdrawable>Withdrawable: <strong>{{this.accounting.withdrawableClient}}</strong> <symbol>{{this.tokenDetails.symbol}}</symbol></amount-withdrawable>
+        <input type="button" class="maxBtn" onclick="app.state.withdrawMaxClient()" value="Max" />
+      </input-header>
+      <input type="text" name="value" />
+    </input-holder>
+    <wizard-controls>
+      <div></div>
+      <input type="submit" value="Withdraw" />
+    </wizard-controls>
+  </wizard-page>
 </form>

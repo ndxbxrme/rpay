@@ -1,42 +1,79 @@
-<form onsubmit="app.state.submitNewProject(); return false">
+<form onsubmit="app.state.submitNewProject(); return false" novalidate>
   <modal-header>
-    <heading>New contract</heading>
+    <div></div>
     <input type="button" onclick="app.state.closeModal()" value="X" />
   </modal-header>
-  <wizard-page name="0">
-    <label>name</label>
-    <input type="text" name="name" required />
-    <label>client address</label>
-    <input type="text" name="client" required valid-address />
-    <label>client name</label>
-    <input type="text" name="clientName" required />
+  <wizard-page name="0" class="">
+    <wizard-heading>
+      <h1>Create a project</h1>
+    </wizard-heading>
+    <label>Project name</label>
+    <input-holder>
+      <input type="text" name="name" required />
+    </input-holder>
+    <label>Client address</label>
+    <input-holder>
+      <input type="text" name="client" required valid-address />
+    </input-holder>
+    <label>Client name</label>
+    <input-holder>
+      <input type="text" name="clientName" required />
+    </input-holder>
     <wizard-controls>
-      <input type="button" onclick="app.state.next()" value="Next" />
+      <div></div>
+      <input type="button" onclick="app.state.wizardNext()" value="Next" />
     </wizard-controls>
   </wizard-page>
-  <wizard-page name="1">
-    <label>startDate</label>
-    <input type="date" name="startDate" required />
-    <label>dueDate</label>
-    <input type="date" name="dueDate" />
+  <wizard-page name="1" class="hidden">
+    <wizard-heading>
+      <h1>Create a project</h1>
+    </wizard-heading>
+    <label>Start date (required)</label>
+    <input-holder>
+      <input type="date" name="startDate" required />
+    </input-holder>
+    <label>Due date (optional)</label>
+    <input-holder>
+      <input type="date" name="dueDate" />
+    </input-holder>
     <wizard-controls>
-      <input type="button" onclick="app.state.prev()" value="Prev" />
-      <input type="button" onclick="app.state.next()" value="Next" />
+      <input type="button" onclick="app.state.wizardPrev()" value="Prev" />
+      <input type="button" onclick="app.state.wizardNext()" value="Next" />
     </wizard-controls>
   </wizard-page>
-  <wizard-page name="2">
-    <label>token address</label>
-    <input type="text" name="token" required valid-address onchange="app.state.updateToken(this)" />
-    <label>value</label>
-    <input type="text" name="value" required number />
-    <label>frequency</label>
-    <input type="number" name="frequency" required />
+  <wizard-page name="2" class="hidden">
+    <wizard-heading>
+      <h1>Create a project</h1>
+    </wizard-heading>
+    <label>Token address</label>
+    <input-holder>
+      <input type="text" name="token" required valid-address onchange="app.state.updateToken(this)" />
+    </input-holder>
+    <label>Value</label>
+    <input-holder>
+      <input type="text" name="value" required number />
+    </input-holder>
+    <label>Payment frequency</label>
+    <input-holder>
+      <select name="frequency" required>
+        <option value="0">On project ended</option>
+        <option value="1">On milestone reached</option>
+        <option value="2">Per recorded hour</option>
+        <option value="3">Per recorded day</option>
+        <option value="4">Daily</option>
+        <option value="5">Weekdays</option>
+        <option value="6">Weekly</option>
+        <option value="7">Monthly</option>
+        <option value="8">Quarterly</option>
+        <option value="9">Yearly</option>
+      </select>
+    </input-holder>
     <wizard-controls>
-      <input type="button" onclick="app.state.prev()" value="Prev" />
+      <input type="button" onclick="app.state.wizardPrev()" value="Prev" />
       <input type="submit" value="Create" />
     </wizard-controls>
   </wizard-page>
-  <wizard-page name="3">
-    <h1>Generating contract</h1>
+  <wizard-page name="3" class="hidden">
+    <h1>Generating project</h1>
   </wizard-page>
 </form>

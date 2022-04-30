@@ -2,14 +2,18 @@
   <project-header>
     <h3>{{this.name}}</h3>
   </project-header>
-  <project-details>
+  <project-details onclick="app.state.toggleExtendedDetails(this)">
     <value-date>
       <label>&nbsp;</label>
       <value>{{this.accounting.valueText}}</value>
       <startDate>{{app.Date(this.startDate * 1000)}}</startDate>
     </value-date>
+    <earned>
+      <label>Earned</label>
+      <amount>{{this.accounting.total}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
+    </earned>
     <owed>
-      <label>Owed</label>
+      <label>Owing</label>
       <amount>{{this.accounting.owed}} <symbol>{{this.tokenDetails.symbol}}</symbol></amount>
     </owed>
     <withdrawable>
@@ -20,4 +24,11 @@
   <controls>
     <input type="button" onclick="app.state.withdrawOwner(this, '{{this.contractAddress}}', '{{this.projectID}}', {{this.tokenDetails.decimals}}, {{this.accounting.num}})" value="Withdraw" {{+this.accounting.withdrawableOwner?'':'disabled=""'}} />
   </controls>
+  <extended-details class="hidden">
+    <h1>Extended details</h1>
+    <ed-controls>
+      <input type="button" onclick="app.state.clientEndProject()" value="End project" />
+    </ed-controls>
+  </extended-details>
+  <details-link>Details</details-link>
 </project>

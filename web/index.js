@@ -6,7 +6,7 @@ import {defaultCtrl} from './components/default.js';
 window.app = TurboMini();
 (await app.run(async app => {
   Formatters(app);
-  await Promise.all(['default', 'no-metamask', 'connect-wallet', 'switch-chain', 'modals/new-contract', 'modals/new-project', 'modals/deposit', 'modals/withdraw-owner', 'modals/withdraw-client', 'owner-contracts', 'client-contracts', 'owner-contract', 'client-contract', 'owner-project', 'client-project'].map(async name => app.template(name, await(await fetch('./components/' + name + '.html')).text())));
+  await Promise.all(['default', 'no-metamask', 'connect-wallet', 'switch-chain', 'modals/new-contract', 'modals/new-project', 'modals/deposit', 'modals/withdraw-owner', 'modals/withdraw-client', 'owner-contracts', 'client-contracts', 'owner-contract', 'client-contract', 'owner-project', 'client-project'].map(async name => app.template(name, await(await fetch('./components/' + name + '.html?' + Math.floor(Math.random() * 99999999))).text())));
   await Promise.all(['RAIN', 'RPayMasterchef', 'RPay', 'ERC20'].map(async name => {
     const abi = await(await fetch('./abi/' + name + '.json')).json();
     config.abis[name] = abi.abi || abi;
@@ -18,6 +18,12 @@ window.app = TurboMini();
   if(!window.ethereum.chainId || (window.ethereum.chainId==='0x1')) {
     app.$('page').innerHTML = app.$t('connect-wallet');
     await new Promise(res => {app.doConnect = async () => await ethereum.request({method: 'eth_requestAccounts'}); res() });
+  }
+  const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+  if(accounts && accounts[0]) {
+    const connectBtn = app.$('input.connect');
+    connectBtn.value = app.Address(accounts[0]).replace(/&nbsp;/g,'');
+    connectBtn.className += ' connected';
   }
   if(parseInt(window.ethereum.chainId, 16)!==config.CHAIN_ID) {
     app.$('page').innerHTML = app.$t('switch-chain');

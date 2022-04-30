@@ -20,7 +20,7 @@ page {
   display: flex;
   flex-direction: column;
   width: calc(100% - 4em);
-  max-width: 70em;
+  max-width: 90em;
   margin-top: 6em;
 }
 header-holder {
@@ -36,7 +36,7 @@ header-holder {
 }
 header {
   width: calc(100% - 4em);
-  max-width: 70em;
+  max-width: 90em;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -46,7 +46,7 @@ header logo {
 }
 header logo:first-letter {
   letter-spacing: -.1em;
-  font-size: 1.3em;
+  font-size: 2em;
 }
 modal-holder {
   position: fixed;
@@ -56,25 +56,111 @@ modal-holder {
   min-height: 100%;
   overflow-y: auto;
   justify-content: center;
+  align-items: flex-start;
   display: none;
 }
 modal {
-  background: white;
-  padding: 2em;
+  background: #796194;
+  margin-top: 10vh;
+  min-width: 40em;
+  border-radius: 1em;
 }
 modal form {
   display: flex;
   flex-direction: column;
 }
+modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+modal-header heading {
+  font-size: 1.2em;
+  margin-left: 2.0833em;
+}
+modal-header input[type="button"] {
+  border-top: none;
+  border-right: none;
+  height: 2em;
+  padding: 0 1em;
+  border-radius: 0 1em 0 0;
+}
+wizard-page {
+  display: flex;
+  flex-direction: column;
+  padding: 1em 2em 0em 2em;
+}
+wizard-page input-holder {
+  padding: .5em;
+  border-radius: .5em;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
+  background: #1f2a39;
+}
+wizard-page input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+input[type="button"].maxBtn {
+  padding: 0 0.2em;
+  height: 2em;
+  border-radius: 0.5em;
+}
+wizard-page input[type=text], wizard-page input[type=date], wizard-page select {
+  padding: 1em;
+  background: none!important;
+  border: none;
+  color: #f4eeff;
+  outline: none;
+  font-size: 1.2em;
+}
+wizard-page option {
+  background-color: #1f2a39;
+}
+input[name="value"] {
+  text-align: right;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  background: transparent;
+  -webkit-text-fill-color: #f4eeff;
+  -webkit-box-shadow: 0 0 0px 1000px #1f2a39 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+wizard-page label {
+  margin-left: 1.5em;
+  margin-bottom: .5em;
+}
+wizard-heading {
+  margin: -2em 1em 2em 1em;
+}
+wizard-heading h1 {
+  font-size: 3em;
+  font-weight: normal;
+}
+wizard-controls {
+  display: flex;
+  justify-content: space-between;
+}
 contracts h1 {
   font-size: 1.2em;
   margin: 1em;
 }
-input[type="button"] {
+input[type="button"], input[type="submit"] {
   height: 4em;
   border: 3px solid black;
   border-radius: 1em;
-  margin-left: 1em;
+  margin-left: .5em;
   font-size: 1.2em;
   font-weight: bold;
   padding: 0 2em;
@@ -82,6 +168,9 @@ input[type="button"] {
 }
 header input[type="button"], projects-header input[type="button"] {
   height: 2.5em;
+}
+wizard-controls input[type="button"] {
+  margin-left: 0;
 }
 contract {
   display: block;
@@ -95,20 +184,30 @@ contract-header {
   font-size: 1em;
   padding: 1em;
 }
+contract-name {
+  color: #bd9be8;
+  font-weight: bold;
+  font-size: 1.4em;
+}
 projects-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   padding: 1em;
 }
+projects-header h2 {
+  font-size: 1em;
+  font-weight: 300;
+}
 project {
-  display: block;
   padding: 1em;
   background: #2d2d4a;
   display: grid;
   grid-template:
-    'header header header header header header header header'
-    'details details details details details details details controls';
+    'header header header header header header header header header header'
+    'details details details details details details details details details controls'
+    'dt dt dt dt dt dt dt dt dt dt';
+    'ed ed ed ed ed ed ed ed ed ed';
   border-top: 1px solid #494f5c;
 }
 project.odd {
@@ -120,30 +219,44 @@ project-header {
 project-details {
   grid-area: details;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-gap: 1em;
   width: 100%;
 }
 project.client project-details {
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
+project-details label, project-details symbol {
+  opacity: 0.6;
+}
 project-details symbol {
   font-size: 0.6em;
 }
-project-details value-date, project-details owed, project-details deposited, project-details withdrawable {
+project-details value-date, project-details earned, project-details owed, project-details deposited, project-details withdrawable {
   display: flex;
   flex-direction: column;
 }
-project-details owed, project-details deposited, project-details withdrawable {
+project-details earned, project-details owed, project-details deposited, project-details withdrawable {
   text-align: center;
 }
-project-details owed amount, project-details deposited amount, project-details withdrawable amount {
+project-details earned amount, project-details owed amount, project-details deposited amount, project-details withdrawable amount {
   font-size: 2em;
+}
+amount symbol {
+  display: block;
 }
 project controls {
   grid-area: controls;
   display: flex;
   justify-content: flex-end;
+}
+details-link {
+  grid-area: dt;
+}
+extended-details {
+  grid-area: ed;
+  display: flex;
+  justify-content: space-between;
 }
 .hidden {
   display: none;

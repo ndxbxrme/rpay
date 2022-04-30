@@ -1,4 +1,24 @@
 <form onsubmit="app.state.submitDeposit(); return false">
-  <input type="number" name="value" />
-  <input type="submit" value="Create" />
+  <modal-header>
+    <div></div>
+    <input type="button" onclick="app.state.closeModal()" value="X" />
+  </modal-header>
+  <wizard-page>
+    <wizard-heading>
+      <h1>Deposit</h1>
+    </wizard-heading>
+    <label>Amount to deposit</label>
+    <input-holder>
+      <input-header>
+        <amount-withdrawable>Owed: <strong>{{this.accounting.withdrawableOwner}}</strong> <symbol>{{this.tokenDetails.symbol}}</symbol></amount-withdrawable>
+        <amount-balance>Balance: <strong>{{this.tokenDetails.balance}}</strong> <symbol>{{this.tokenDetails.symbol}}</symbol></amount-balance>
+        <input type="button" class="maxBtn" onclick="app.state.depositMaxOwed()" value="Max" />
+      </input-header>
+      <input type="text" name="value" />
+    </input-holder>
+    <wizard-controls>
+      <div></div>
+      <input type="submit" value="Deposit" />
+    </wizard-controls>
+  </wizard-page>
 </form>

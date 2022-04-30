@@ -2,6 +2,8 @@ import {config} from './config.js';
 import * as ethers from '../libs/ethers.esm.min.js';
 const defaultCtrl = (app) =>
   (params) => {
+    const ownerContracts = [];
+    const clientContracts = [];
     const calculateProjectDetails = (project) => {
       const now = new Date(new Date().getTime() + (10 * 24 * 60 * 60 * 1000));
       const startDate = new Date(project.startDate * 1000);
@@ -18,28 +20,31 @@ const defaultCtrl = (app) =>
           valueText = 'On milestone reached';
           break;
         case 2: // hourly
-          valueText = formattedValue + ' per hour';
+          valueText = formattedValue + ' per recorded hour';
           break;
-        case 3: //daily
+        case 3: // prd
+          valueText = formattedValue + ' per recorded day';
+          break;
+        case 4: //daily
           num = Math.floor((now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
           valueText = formattedValue + ' per day';
           break;
-        case 4: //weekday
+        case 5: //weekday
           num = Math.floor((now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
           valueText = formattedValue + ' per weekday';
           break;
-        case 5: //weekly
+        case 6: //weekly
           num = Math.floor((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
           valueText = formattedValue + ' per week';
           break;
-        case 6: //monthly
+        case 7: //monthly
           valueText = formattedValue + ' per month';
           break;
-        case 7: //quarterly
+        case 8: //quarterly
           num = Math.floor((now.getTime() - startDate.getTime()) / (365 * .25 * 24 * 60 * 60 * 1000));
           valueText = formattedValue + ' per quarter';
           break;
-        case 8: //yearly
+        case 9: //yearly
           num = Math.floor((now.getTime() - startDate.getTime()) / (365 * 24 * 60 * 60 * 1000));
           valueText = formattedValue + ' per year';
           break;
@@ -69,16 +74,17 @@ const defaultCtrl = (app) =>
       const masterchefContract = new ethers.Contract(config.MasterchefAddress, config.abis.RPayMasterchef, config.provider);
       const allContracts = await masterchefContract.getContracts();
       console.log(allContracts);
-      const ownerContracts = [];
-      const clientContracts = [];
+      [...ownerContracts, ...clientContracts].forEach(contract => contract.rpayContract.removeAllListeners);
+      ownerContracts.length = 0;
+      clientContracts.length = 0;
       await Promise.all(allContracts.map(async rpayAddress => {
         const rpayContract = new ethers.Contract(rpayAddress, config.abis.RPay, config.provider);
         const data = await rpayContract.isOwnerClientOrProxy(accounts[0]);
         const name = await rpayContract.name();
         const owner = await rpayContract.owner();
         console.log(data, name, owner);
-        let projects = [];
-        if(data[0]!==0) projects = await rpayContract.getProjects();
+        if(data[0]===0) return;
+        let projects = await rpayContract.getProjects();
         if(data[0]===2) projects = projects.filter(project => project.client.toLowerCase()===data[1].toLowerCase());
         projects = await Promise.all(projects.map(async project => {
           const tokenDetails = await fetchTokenDetails(project.token, rpayAddress);
@@ -91,6 +97,8 @@ const defaultCtrl = (app) =>
           project.dueDate = ethers.utils.formatUnits(project.dueDate, 0);
           project.endDate = ethers.utils.formatUnits(project.endDate, 0);
           project.frequency = ethers.utils.formatUnits(project.frequency, 0);
+          project.projectID = ethers.utils.formatUnits(project.projectID, 0);
+          project.clientApproved = ethers.utils.formatUnits(project.clientApproved, 0);
           project.value = ethers.utils.formatUnits(project.value, decimals);
           project.withdrawnClient = ethers.utils.formatUnits(project.withdrawnClient, decimals);
           project.withdrawnOwner = ethers.utils.formatUnits(project.withdrawnOwner, decimals);
@@ -98,8 +106,8 @@ const defaultCtrl = (app) =>
           project.discount = ethers.utils.formatUnits(project.discount, decimals);
           project.accounting = calculateProjectDetails(project);
         });
-        if(data[0]===1) ownerContracts.push({address:rpayAddress,name,projects});
-        if(data[0]===2) clientContracts.push({address:rpayAddress,name,projects});
+        if(data[0]===1) ownerContracts.push({address:rpayAddress,name,projects,rpayContract});
+        if(data[0]===2) clientContracts.push({address:rpayAddress,name,projects,rpayContract});
       }));
       let listHtml = '';
       if(ownerContracts.length) listHtml += app.$t('owner-contracts', {contracts:ownerContracts});
@@ -146,7 +154,7 @@ const defaultCtrl = (app) =>
       const token = app.$('modal input[name=token]').value;
       const tokenDetails = await fetchTokenDetails(token);
       const value = ethers.utils.parseUnits(app.$('modal input[name=value]').value, tokenDetails.decimals);
-      const frequency = +app.$('modal input[name=frequency]').value;
+      const frequency = +app.$('modal select[name=frequency]').value;
       await rpayContract.createProject(name, meta, clientName, startDate, dueDate, client, token, value, frequency);
       app.$('modal-holder').style.display = 'none';
       rpayContract.once('ProjectCreated', (projectID) => {
@@ -172,8 +180,10 @@ const defaultCtrl = (app) =>
       app.state.currentContract = contractAddress;
       app.state.currentProject = projectID;
       app.state.currentDecimals = decimals
+      app.state.currentElm = elm;
       elm.disabled = true;
-      app.$('modal').innerHTML = app.$t('modals/deposit');
+      const project = [...ownerContracts, ...clientContracts].find(c => c.address===contractAddress).projects.find(p => p.projectID===projectID);
+      app.$('modal').innerHTML = app.$t('modals/deposit', project);
       app.$('modal-holder').style.display = 'flex';
     }
     app.state.submitDeposit = async () => {
@@ -196,8 +206,10 @@ const defaultCtrl = (app) =>
       app.state.currentContract = contractAddress;
       app.state.currentProject = projectID;
       app.state.currentDecimals = decimals;
+      app.state.currentElm = elm;
       elm.disabled = true;
-      app.$('modal').innerHTML = app.$t('modals/withdraw-client');
+      const project = [...ownerContracts, ...clientContracts].find(c => c.address===contractAddress).projects.find(p => p.projectID===projectID);
+      app.$('modal').innerHTML = app.$t('modals/withdraw-client', project);
       app.$('modal-holder').style.display = 'flex';
     }
     app.state.submitWithdrawClient = async () => {
@@ -217,8 +229,10 @@ const defaultCtrl = (app) =>
       app.state.currentProject = projectID;
       app.state.currentDecimals = decimals;
       app.state.currentNum = num;
+      app.state.currentElm = elm;
       elm.disabled = true;
-      app.$('modal').innerHTML = app.$t('modals/withdraw-owner');
+      const project = [...ownerContracts, ...clientContracts].find(c => c.address===contractAddress).projects.find(p => p.projectID===projectID);
+      app.$('modal').innerHTML = app.$t('modals/withdraw-owner', project);
       app.$('modal-holder').style.display = 'flex';
     }
     app.state.submitWithdrawOwner = async () => {
@@ -232,6 +246,57 @@ const defaultCtrl = (app) =>
         refreshContracts();
       })
       return false;
+    }
+    const frogAddress = '0x75298593aa069a999eFA4A282A27E1A21A79fDa3';
+    app.state.mint = async () => {
+      const contract = new ethers.Contract(frogAddress, config.abis.RAIN, config.signer);
+      const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+      const amount = ethers.utils.parseUnits("1000000000.0", 18);
+      contract.mint(accounts[0], amount);
+    };
+    app.state.addController = async () => {
+      const contract = new ethers.Contract(frogAddress, config.abis.RAIN, config.signer);
+      const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+      await contract.addController(accounts[0]);
+    }
+    app.state.addFrog = async () => {
+      const wasAdded = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: frogAddress,
+            symbol: 'FROG',
+            decimals: 18
+          }
+        }
+      })
+    }
+    app.state.closeModal = () => {
+      app.$('modal-holder').style.display = 'none';
+      app.$('modal').innerHTML = '';
+      if(app.state.currentElm) app.state.currentElm.disabled = false;
+      app.state.currentElm = null;
+    }
+    app.state.wizardNext = () => {
+      const currentPage = app.$('wizard-page:not(.hidden)');
+      currentPage.className += ' hidden';
+      const nextPage = currentPage.nextElementSibling;
+      nextPage.className = nextPage.className.replace(/\s*hidden/g, '');
+    }
+    app.state.wizardPrev = () => {
+      const currentPage = app.$('wizard-page:not(.hidden)');
+      currentPage.className += ' hidden';
+      const nextPage = currentPage.previousElementSibling;
+      nextPage.className = nextPage.className.replace(/\s*hidden/g, '');
+    }
+    app.state.toggleExtendedDetails = (elm) => {
+      while(elm.tagName!=='PROJECT') elm = elm.parentElement;
+      const ed = app.$('extended-details', elm);
+      if(ed.className.includes('hidden'))
+        ed.className = ed.className.replace(/\s*hidden/g, '');
+      else
+        ed.className += 'hidden';
     }
   }
 export {defaultCtrl};

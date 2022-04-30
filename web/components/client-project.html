@@ -2,7 +2,7 @@
   <project-header>
     <h3>{{this.name}}</h3>
   </project-header>
-  <project-details>
+  <project-details onclick="app.state.toggleExtendedDetails(this)">
     <value-date>
       <label>&nbsp;</label>
       <value>{{this.accounting.valueText}}</value>
@@ -25,4 +25,10 @@
     <input type="button" onclick="app.state.approve(this, '{{this.contractAddress}}', '{{this.token}}')" value="Approve {{this.tokenDetails.symbol}}" class="{{+this.tokenDetails.allowance?'hidden':''}}" />
     <input type="button" onclick="app.state.withdrawClient(this, '{{this.contractAddress}}', '{{this.projectID}}', {{this.tokenDetails.decimals}})" value="Withdraw" {{+this.accounting.withdrawableClient?'':'disabled=""'}} />
   </controls>
+  <extended-details class="hidden">
+    <h1>Extended details</h1>
+    <ed-controls>
+      <input type="button" onclick="app.state.clientEndProject()" value="Confirm project ended" />
+    </ed-controls>
+  </extended-details>
 </project>
